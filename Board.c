@@ -6,12 +6,12 @@ int main() {
 	//-1 - серая клетка, 0 - белая
 	int board[8][8] = { { 0,  0, -1,  0, -1,  0,  0,  0},
 						{ 0, -1,  0,  0, -1, -1,  0,  0},
-						{-1, -1,  0,  0,  0,  0,  0, -1},
+						{-1, -1,  0, -1,  0,  0,  0, -1},
 						{-1, -1,  0,  0,  0,  0,  0,  0},
+						{ 0, -1,  0,  0,  0, -1,  0,  0},
+						{ 0, -1,  0, -1, -1,  0, -1, -1},
 						{ 0,  0,  0,  0,  0,  0,  0,  0},
-						{ 0,  0, -1, -1, -1,  0, -1, -1},
-						{ 0,  0,  0,  0,  0,  0,  0,  0},
-						{ 0,  0,  0,  0,  0, -1,  0, -1} };
+						{ 0,  0, -1,  0,  0, -1,  0, -1} };
 
 	for (int i = 0; i < num; i++) {
 		for (int j = 0; j < num; j++)
@@ -50,36 +50,26 @@ int main() {
 
 	{
 		//Вычисление площади прямоугольников
-		int topLeft[2] = { 0, 0 };
-		int bottomRight[2] = { 0, 0 };
+		int topLeft[2] = { -1, -1 };
+		int bottomRight[2] = { -1, -1 };
 		int square = 0;
 		for (int i = 0; i < num; i++)
 			for (int j = 0; j < num; j++)
 				if (board[i][j] > 0) {//если клетка белая
 					int cellsLine = board[i][j];//присваиваем её вес
-					int lines = 0;
 					int ind = i;
-					while (ind < num && board[ind][j] > 0)//пока не конец столбца и клетка не серая
-						if (cellsLine <= board[ind++][j])//если вес текущей клетки больше или равен начальному, то просто переходим на след. строку
-							lines++;
-						else {
-							if (cellsLine*lines > square) {//в противном случае, сравниваем текущую площадь прямоуг. с вычесленной на предыдущем этапе
-								square = cellsLine*lines;
-								topLeft[0] = i;
-								topLeft[1] = j;
-								bottomRight[0] = ind - 2;
-								bottomRight[1] = j + cellsLine - 1;
-							}
-							lines++;
-							cellsLine = board[ind - 1][j];//присваиваем новый вес клетки и идем дальше
+					while (ind < num && board[ind][j] > 0) {//пока не конец столбца и клетка не серая
+						int curSquare = cellsLine*(ind - i + 1);
+						if ((board[ind + 1][j] < 0 || cellsLine > board[ind + 1][j]) && curSquare > square) {
+							square = curSquare;
+							topLeft[0] = i;
+							topLeft[1] = j;
+							bottomRight[0] = ind;
+							bottomRight[1] = j + cellsLine - 1;
 						}
-
-					if (cellsLine*lines > square) {//сравниваем текущую площадь прямоуг. с вычесленной на предыдущем этапе
-						square = cellsLine*lines;
-						topLeft[0] = i;
-						topLeft[1] = j;
-						bottomRight[0] = ind - 1;
-						bottomRight[1] = j + cellsLine - 1;
+						ind++;
+						if (cellsLine > board[ind][j] && board[ind][j] > 0)
+							cellsLine = board[ind][j];
 					}
 				}//if (board[i][j] > 0)
 		printf("[%d, %d] - [%d, %d]: %d.\n", topLeft[0] + 1, topLeft[1] + 1, bottomRight[0] + 1, bottomRight[1] + 1, square);
